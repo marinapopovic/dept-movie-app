@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Movies</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script> 
+  </head>
+  <body>
+    <div class="container">
+      <form>
+        <input name="title" type="text" class="ghost-input" placeholder="Enter a Movie" required>
+        <input type="submit" class="ghost-button" value="Search">
+      </form>
+      <div id="result">
+      </div>
+    </div>
+    <script>
+      $("form").submit(function( event ) {
+        event.preventDefault();
+        var term =  $( "input:first" ).val();
+
+        $.ajax("/movies/search?q=" + term)
+          .done(function(data) {
+            if (data !== 'undefined' && data) {
+              var res = `<h2> Results </h2><hr/>`;
+              for(var i=0; i < data.length; i++) {
+                var imgUrl = data[i].movie.poster === `N/A`? `https://www.movieinsider.com/images/none_175px.jpg`:data[i].movie.poster;
+                res = res 
+                + `<div>`
+                  + `<h3>`+ data[i].movie.title +` `+ data[i].movie.year +`</h3>`
+                  + `<div class="movie">`
+                    + `<div class="poster"><img src="`+ imgUrl +`" height="150" alt="movie poster"/></div>`
+                    + `<div class="plot">` + data[i].movie.plot + `</div>`
+                    + `<div class="trail"><br/>`
+                      + `<a href="`+ data[i].trailer.link + `" target="_blank">`
+                      + `<div class="video-thumbnail push">`
+                      + `<img src="`+ data[i].trailer.img +`" height="100" width="160"/>`
+                      + `</div>`
+                      + `</a></div>`
+                  + `<div/>`
+                + `</div><hr/>`;
+              }
+              var $div = $(res);
+              $("#result").html($div);
+            }
+          })
+          .fail(function(xhr, status, error) {
+            $("#result").html($(`<h2> Movie not found. </h2>`));
+        })
+      });
+    </script>
+  </body>
+</html>
